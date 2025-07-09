@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: langfuse
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: langfuse
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langfuse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langfuse
+  template:
+    metadata:
+      labels:
+        app: langfuse
+    spec:
+      containers:
+      - name: langfuse
+        image: ghcr.io/langfuse/langfuse:2 #이미지 반입필요
+        ports:
+        - containerPort: 3000
+        env:
+        - name: HOSTNAME
+          value: 0.0.0.0
+        - name: DATABASE_URL
+          value: postgres://postgres:admin1234@postgres.default.svc.cluster.local:5432/postgres #도메인으로 변경
+        - name: NEXTAUTH_URL
+          value: http://localhost:8080 #실제 langfuse 도메인
+        - name: NEXTAUTH_SECRET
+          value: 6e171fcf3443c9f285f02a36f9327dd2ef2ba5ade7ffd519941b67f82742ab36 #openssl rand -hex 32
+        - name: SALT
+          value: f76d139d73d039f1c38a887dfb38a7eaeae53e650f04600351fd6787685de140 #openssl rand -hex 32
+        readinessProbe:
+          httpGet:
+            path: /api/public/health
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /api/public/ready
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
