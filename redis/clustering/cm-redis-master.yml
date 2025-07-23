@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-redis-master
+data:
+  redis.conf: |
+    bind 0.0.0.0
+    protected-mode no
+    appendonly yes
+    dir /data
