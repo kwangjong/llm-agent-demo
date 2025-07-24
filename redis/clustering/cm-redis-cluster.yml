@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cm-redis-master
+  name: cm-redis-cluster
 data:
   redis.conf: |
-    bind 0.0.0.0
-    protected-mode no
+    cluster-enabled yes
+    cluster-node-timeout 5000
     appendonly yes
     dir /data

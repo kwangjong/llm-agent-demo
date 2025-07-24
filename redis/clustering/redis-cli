@@ -1,0 +1,11 @@
+redis-cli --cluster create \
+    sts-redis-node-0.svc-redis-cluster:6379 \
+    sts-redis-node-1.svc-redis-cluster:6379 \
+    sts-redis-node-2.svc-redis-cluster:6379 \
+    sts-redis-node-3.svc-redis-cluster:6379 \
+    sts-redis-node-4.svc-redis-cluster:6379 \
+    sts-redis-node-5.svc-redis-cluster:6379 \
+    --cluster-replicas 1 \
+    -a mysecretpassword
+
+redis-cli -a mysecretpassword cluster info

@@ -1,34 +1,42 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: sts-redis-master
+  name: sts-redis-node
 spec:
-  serviceName: svc-redis-internal
-  replicas: 1
+  serviceName: svc-redis-cluster
+  replicas: 6
   selector:
     matchLabels:
       app: redis
-      role: master
   template:
     metadata:
       labels:
         app: redis
-        role: master
     spec:
       containers:
         - name: redis
           image: redis:7.2
-          args:
+          command:
+          - redis-server
           - /etc/redis/redis.conf
+          - --masterauth
+          - $(REDIS_PASSWORD)
           - --requirepass
           - $(REDIS_PASSWORD)
           ports:
             - containerPort: 6379
+          resources:
+            requests:
+              cpu: 100m
+              memory: 500Mi
+            limits:
+              cpu: 200m
+              memory: 1Gi
           env:
           - name: REDIS_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: secret-redis
+                name: secret-redis-cluster
                 key: redis_password
           readinessProbe:
             exec:
@@ -57,7 +65,13 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: cm-redis-master
-        - name: redis-data
-          persistentVolumeClaim:
-            claimName: pvc-redis-master
+            name: cm-redis-cluster
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 3Gi

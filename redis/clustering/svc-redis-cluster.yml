@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-redis-internal
+  name: svc-redis-cluster
 spec:
   clusterIP: None
   selector:
