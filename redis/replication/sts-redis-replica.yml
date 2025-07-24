@@ -75,6 +75,10 @@ spec:
               mountPath: /data
             - name: config
               mountPath: /etc/redis
+      volumes:
+        - name: config
+          configMap:
+            name: cm-redis-replica
   volumeClaimTemplates:
   - metadata:
       name: redis-data
