@@ -4,7 +4,8 @@ metadata:
   name: cm-redis-master
 data:
   redis.conf: |
-    bind 0.0.0.0
-    protected-mode no
+    save 900 1
+    save 300 10
     appendonly yes
+    appendfsync everysec
     dir /data

@@ -4,8 +4,9 @@ metadata:
   name: cm-redis-replica
 data:
   redis.conf: |
-    bind 0.0.0.0
-    protected-mode no
+    save 900 1
+    save 300 10
     appendonly yes
+    appendfsync everysec
     dir /data
     replicaof sts-redis-master-0.svc-redis-master 6379
