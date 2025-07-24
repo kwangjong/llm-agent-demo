@@ -38,6 +38,13 @@ spec:
           - $(REDIS_PASSWORD)
           ports:
             - containerPort: 6379
+          resources:
+            requests:
+              cpu: 200m
+              memory: 1Gi
+            limits:
+              cpu: 200m
+              memory: 3Gi
           env:
           - name: REDIS_PASSWORD
             valueFrom:
@@ -68,10 +75,12 @@ spec:
               mountPath: /data
             - name: config
               mountPath: /etc/redis
-      volumes:
-        - name: config
-          configMap:
-            name: cm-redis-replica
-        - name: redis-data
-          persistentVolumeClaim:
-            claimName: pvc-redis-replica
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: 5Gi

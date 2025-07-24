@@ -73,6 +73,8 @@ spec:
             - name: config
               mountPath: /etc/redis
       volumes:
+        - name: redis-data
+              mountPath: /data
         - name: config
           configMap:
             name: cm-redis-master
