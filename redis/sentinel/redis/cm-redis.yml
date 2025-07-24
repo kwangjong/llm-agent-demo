@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-redis
+data:
+  redis.conf: |
+    save 900 1
+    save 300 10
+    appendonly yes
+    appendfsync everysec
+    dir /data

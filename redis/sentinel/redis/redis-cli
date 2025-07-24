@@ -1,0 +1,1 @@
+redis-cli -a mysecretpassword REPLICAOF sts-redis-0.svc-redis 6379

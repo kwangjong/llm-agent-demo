@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-redis-sentinel
+spec:
+  selector:
+    app: redis-sentinel
+  ports:
+  - port: 26379
+    targetPort: 26379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-redis-sentinel
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis-sentinel
+  template:
+    metadata:
+      labels:
+        app: redis-sentinel
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: redis-sentinel
+          image: redis:7.2
+          command:
+          - sh
+          - -c
+          args:
+          - |
+            cp /tmp/sentinel.conf /etc/sentinel/sentinel.conf
+            exec redis-sentinel /etc/sentinel/sentinel.conf \
+              --sentinel auth-pass mymaster $(REDIS_PASSWORD)
+          ports:
+            - containerPort: 26379
+          env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secret-redis
+                key: redis_password
+          readinessProbe:
+            tcpSocket:
+              port: 26379
+            initialDelaySeconds: 6
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 26379
+            initialDelaySeconds: 6
+            periodSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: config
+              mountPath: /tmp
+            - name: etc-sentinel
+              mountPath: /etc/sentinel
+      volumes:
+        - name: config
+          configMap:
+            name: cm-redis-sentinel
+        - name: etc-sentinel
+          emptyDir: {}
